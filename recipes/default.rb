@@ -25,25 +25,34 @@ data_bag('users').each do |id|
     end
 end
 
+template "/etc/sudoers.d/#{node["mydev"]["username"]}" do
+    source "addusers.erb"
+    owner "root"
+    group "root"
+    mode 400
+end
+
 node["mydev"]["packages"].each do |pkg|
     package pkg do
         action :install
     end
 end
 
-directory "/home/ns64/git_repos" do
+directory "/home/#{node["mydev"]["username"]}/git_repos" do
     action :create
 end
 
-git "/home/ns64/git_repos/dotfiles" do
+git "/home/#{node["mydev"]["username"]}/git_repos/dotfiles" do
     repository node["mydev"]["dotfiles_repos"]
+    user node["mydev"]["username"]
     action :sync
 end
 
-template "/etc/sudoers.d/#{node["mydev"]["username"]}" do
-    source "addusers.erb"
-    owner "root"
-    group "root"
-    mode 400
+bash "dotfiles setup" do
+    user node["mydev"]["username"]
+    cwd "/home/#{node["mydev"]["username"]}/git_repos/dotfiles"
+    code <<-EOC
+        ./setup.sh
+    EOC
 end
 
