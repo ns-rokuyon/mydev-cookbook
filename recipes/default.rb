@@ -39,12 +39,16 @@ node["mydev"]["packages"].each do |pkg|
 end
 
 directory "/home/#{node["mydev"]["username"]}/git_repos" do
+    user node["mydev"]["username"]
+    group "users"
     action :create
 end
 
 git "/home/#{node["mydev"]["username"]}/git_repos/dotfiles" do
     repository node["mydev"]["dotfiles_repos"]
     user node["mydev"]["username"]
+    group "users"
+    mode 0755
     action :sync
 end
 
