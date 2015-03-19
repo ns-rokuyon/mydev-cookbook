@@ -41,22 +41,36 @@ end
 directory "/home/#{node["mydev"]["username"]}/git_repos" do
     user node["mydev"]["username"]
     group "users"
+    mode 0755
     action :create
 end
 
-git "/home/#{node["mydev"]["username"]}/git_repos/dotfiles" do
+dotfiles_dir = "/home/#{node["mydev"]["username"]}/git_repos/dotfiles"
+git dotfiles_dir do
     repository node["mydev"]["dotfiles_repos"]
     user node["mydev"]["username"]
     group "users"
-    mode 0755
     action :sync
 end
 
-bash "dotfiles setup" do
-    user node["mydev"]["username"]
-    cwd "/home/#{node["mydev"]["username"]}/git_repos/dotfiles"
+node["mydev"]["setup_dotfiles"].each do |file|
+    file "/home/#{node["mydev"]["username"]}/#{file}" do
+        content IO.read("#{dotfiles_dir}/#{file}")
+    end
+end
+
+bash "mv dirs" do
+    cwd "/home/#{node["mydev"]["username"]}"
     code <<-EOC
-        ./setup.sh
+       cp -r #{dotfiles_dir}/misc ./
+       cp -r #{dotfiles_dir}/.vim ./
     EOC
 end
 
+git "/home/#{node["mydev"]["username"]}/.oh-my-zsh" do
+    repository "https://github.com/robbyrussell/oh-my-zsh.git"
+    reference "master"
+    action :checkout
+    user node["mydev"]["username"]
+    group node["mydev"]["username"]
+end
