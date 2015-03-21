@@ -30,12 +30,27 @@ node["mydev"]["dotfiles"]["dirs"].each do |dir|
         cwd "/home/#{username}"
         code <<-EOC
            cp -r #{dotfiles_dir}/#{dir} ./
+           chown -R #{username}:#{username} #{dir}
         EOC
     end
 end
 
 git "/home/#{username}/.oh-my-zsh" do
     repository "https://github.com/robbyrussell/oh-my-zsh.git"
+    reference "master"
+    action :checkout
+    user username
+    group username
+end
+
+directory "/home/#{username}/.vim/bundle" do
+    user username
+    group username
+    action :create
+end
+
+git "/home/#{username}/.vim/neobundle.vim.git" do
+    repository "https://github.com/Shougo/neobundle.vim"
     reference "master"
     action :checkout
     user username
