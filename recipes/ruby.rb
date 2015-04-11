@@ -11,13 +11,11 @@ git "/home/#{username}/#{rbenv_dir}" do
     repository "https://github.com/sstephenson/rbenv.git"
     revision "master"
     user username
-    group username
     action :checkout
 end
 
 directory "/home/#{username}/#{rbenv_plugin_dir}" do
     user username
-    group username
     action :create
 end
 
@@ -25,7 +23,6 @@ git "/home/#{username}/#{rbenv_plugin_dir}/ruby-build" do
     repository "https://github.com/sstephenson/ruby-build.git"
     revision "master"
     user username
-    group username
     action :checkout
 end
 
